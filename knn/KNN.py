@@ -22,6 +22,16 @@ def file2maxtrix(filename):
         labels.append(int(listFromLine[-1]))
         index +=1
     return group,labels
+
+def img2vector(filename):
+    returnVect = zeros((1,1024))
+    fr = open(filename)
+    for i in range (32):
+        lineStr = fr.readline()
+        for j in range(32):
+            returnVect[0,32*i+j] = int(lineStr[j])
+    return returnVect
+
 #dataSet normalization
 def autoNorm(dataSet):
     minVals = dataSet.min(0)
@@ -33,7 +43,7 @@ def autoNorm(dataSet):
     normDataSet = normDataSet/tile(ranges,(m,1))
     return normDataSet,ranges,minVals
     
-
+#KNN
 def classify0(inX, dataSet, labels, k): #输入，样本，样本标签，K
     dataSetSize = dataSet.shape[0]#获取数据集长度
     diffMat = tile(inX,(dataSetSize,1))-dataSet#计算待分类样本和每个样本集中的样本距离（差）
@@ -48,6 +58,7 @@ def classify0(inX, dataSet, labels, k): #输入，样本，样本标签，K
     sortedClassCount = sorted(classCount.items(),key =operator.itemgetter(1),reverse = True)#按照出现频率排序
     return sortedClassCount[0][0]#返回频率最大的类别
 
+#KNN test
 def datingClassTest():
     hoRatio = 0.15
     datingDataMat, datingLabels = file2maxtrix("datingTestSet2.txt")
@@ -62,6 +73,7 @@ def datingClassTest():
             print("predict:%d,real:%d"%(classifierResult,datingLabels[i]))
     print("accuracy %f"%(1-errorCount/float(numTestVecs)))
 
+#dating test
 def classifyPerson():
     resultList = ["not at all","in small does","in large dose"]
     percentTags = float(input("玩视频游戏所占时间比:"))
