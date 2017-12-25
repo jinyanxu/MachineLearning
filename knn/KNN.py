@@ -1,4 +1,5 @@
 from numpy import *
+import os 
 import operator
 
 #a simple test of dataSet
@@ -58,7 +59,7 @@ def classify0(inX, dataSet, labels, k): #输入，样本，样本标签，K
     sortedClassCount = sorted(classCount.items(),key =operator.itemgetter(1),reverse = True)#按照出现频率排序
     return sortedClassCount[0][0]#返回频率最大的类别
 
-#KNN test
+#KNN datingClassTest
 def datingClassTest():
     hoRatio = 0.15
     datingDataMat, datingLabels = file2maxtrix("datingTestSet2.txt")
@@ -85,3 +86,36 @@ def classifyPerson():
     classifierResult = classify0((inArr-minVals)/ranges,normMat,datingLabes,3)
     print("You will probably like this person：",resultList[classifierResult-1])
 
+#handwritingClassTest
+def handwritingClassTest():
+    hwLabels = []
+    trainingFileList = os.listdir('digits/trainingDigits')#文件名列表
+    m = len(trainingFileList)#数据集长度
+    trainingMat = zeros((m,1024))
+    for i in range (m):
+        filenameStr = trainingFileList[i]#每个文件的完整文件名0_0.txt、9_82.txt
+        fileStr = filenameStr.split('.')[0]#文件名0_0、9_82
+        classNumStr = filenameStr.split('_')[0]#数据类别
+        hwLabels.append(classNumStr)
+        trainingMat[i,:] = img2vector('digits/trainingDigits/%s' %filenameStr)#
+    testFileList = os.listdir('digits/testDigits')
+    errorCount = 0.0
+    mTest = len(testFileList)
+    for i in range(mTest):
+        filenameStr = testFileList[i]
+        fileStr =filenameStr.split('.')[0]
+        classNumStr = filenameStr.split('_')[0]
+        vectorUnderTest = img2vector('digits/testDigits/%s' %filenameStr)
+        classifierResult = classify0(vectorUnderTest,trainingMat,hwLabels,3)
+        if(classifierResult != classNumStr):
+            print("result:%d,real:%d"%(int(classifierResult),int(classNumStr)))
+            errorCount +=1.0
+    print('errorCount:%d:'%errorCount)
+    print("totle accuracy:%f"%(1-errorCount/float(mTest)))
+        
+
+
+
+
+
+    
