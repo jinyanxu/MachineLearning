@@ -1,4 +1,5 @@
 from math import log
+import operator
 #计算信息熵
 def calcShannonEnt(dataset):
     numEntried = len(dataset)
@@ -33,7 +34,7 @@ def splitDataSet(dataset,axis,value):
             retDataset.append(reducedFeatVec)#新的集合
     return retDataset
 
-def chooseBestFeatureToSplit(dataset):
+def chooseBestFeatureToSplit(dataset):#选出最佳属性进行分类
     numFeature = len(dataset[0])-1
     baseEntropy = calcShannonEnt(dataset)
     bestInfoGain =0.0;bestFeature =-1
@@ -51,8 +52,30 @@ def chooseBestFeatureToSplit(dataset):
             bestFeature =i
     return bestFeature
 
+def majorityCnt(classList):
+    classCount ={ }
+    for vote in classCount:
+        if vote not in classCount.keys(): classCount[vote] = 0
+        classCount[vote] +=1
+    sortedClassCount = sorted(classCount.items(),key = operator.itemgetter(1),reserve = True)
+    return sortedClassCount[0][0]
 
-
+def createTree(dataSet,labels):
+    classList = [example[-1] for example in dataSet]#类别列表
+    if classList.count(classList[0]) ==len(classList):#类别完全相同，停止划分(第一个类别的个数==列表长度)
+        return classList[0]
+    if len(dataSet[0]) ==1:#遍历完所有特征返回出现次数最多的类别(dataset只剩下一个特征)
+        return majorityCnt(classList)
+    bestFeat = chooseBestFeatureToSplit(dataSet)#选择最佳特征进行划分(特征序号)
+    bestFeatLabel = labels[bestFeat]#(特征名)
+    myTree = {bestFeatLabel:{}}#树的根节点(字典)
+    del(labels[bestFeat])#从label中删除选择过的特征
+    featValues = [example[bestFeat] for example in dataSet]#数据集中相应特征的值
+    uniqueVals = set(featValues)#删除重复数据
+    for value in uniqueVals:
+        subLabels =labels[:]
+        myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet,bestFeat,value),subLabels)
+    return myTree
 
 
 
